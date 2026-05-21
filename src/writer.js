@@ -5,6 +5,10 @@ export async function writeOutputs(operations, outDir) {
   const queriesDir = path.join(outDir, "queries");
   const mutationsDir = path.join(outDir, "mutations");
 
+  // Clear existing directories to prevent stale files from remaining
+  await fs.rm(queriesDir, { recursive: true, force: true });
+  await fs.rm(mutationsDir, { recursive: true, force: true });
+
   await fs.mkdir(queriesDir, { recursive: true });
   await fs.mkdir(mutationsDir, { recursive: true });
 
