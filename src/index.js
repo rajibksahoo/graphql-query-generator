@@ -4,6 +4,7 @@ import { fetchSchema } from "./fetchSchema.js";
 import { generateAll } from "./generate.js";
 import { writeOutputs } from "./writer.js";
 import { generateInsomniaCollection } from "./insomnia.js";
+import inquirer from "inquirer";
 
 const program = new Command();
 
@@ -15,6 +16,7 @@ program
   .option("-H, --header <key:value...>", "Custom headers to include in introspection request")
   .option("-d, --max-depth <number>", "Maximum depth for nested queries", "3")
   .option("-e, --exclude <fields>", "Comma-separated list of fields to exclude from queries")
+  .option("-i, --interactive", "Interactive mode to manually select which queries/mutations to generate")
   .action(async (options) => {
     try {
       console.log(`Fetching schema from ${options.url}...`);
@@ -37,8 +39,32 @@ program
         excludeFields: options.exclude ? options.exclude.split(',').map(s => s.trim()) : []
       };
 
-      const operations = generateAll(schema, genOptions);
-      console.log(`Found ${operations.length} operations. Writing to files...`);
+      let operations = generateAll(schema, genOptions);
+      console.log(`Found ${operations.length} operations.`);
+
+      if (options.interactive && operations.length > 0) {
+        const { selectedOps } = await inquirer.prompt([
+          {
+            type: "checkbox",
+            name: "selectedOps",
+            message: "Select which queries/mutations to generate:",
+            choices: operations.map(op => ({
+              name: `[${op.type.toUpperCase()}] ${op.name}`,
+              value: op.name,
+              checked: true
+            }))
+          }
+        ]);
+
+        operations = operations.filter(op => selectedOps.includes(op.name));
+        
+        if (operations.length === 0) {
+          console.log("No operations selected. Exiting...");
+          process.exit(0);
+        }
+      }
+
+      console.log(`Writing ${operations.length} operations to files...`);
 
       const outDir = path.resolve(process.cwd(), options.outdir);
       await writeOutputs(operations, outDir);

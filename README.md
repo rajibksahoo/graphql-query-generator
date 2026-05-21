@@ -42,6 +42,7 @@ node src/index.js -u <YOUR_GRAPHQL_ENDPOINT>
 - `-H, --header <key:value>` (Optional): Custom HTTP headers to include in the introspection request (e.g., for Authorization).
 - `-d, --max-depth <number>` (Optional): Maximum depth to traverse nested queries (default is 3).
 - `-e, --exclude <fields>` (Optional): Comma-separated list of field names to exclude from the generated queries (e.g., `password,token`).
+- `-i, --interactive` (Optional): Launches an interactive terminal UI to manually select which specific queries or mutations you want to generate.
 
 **Examples:**
 ```bash
@@ -56,6 +57,9 @@ node src/index.js -u https://api.yoursite.com/graphql -H "Authorization: Bearer 
 
 # Limit depth and exclude specific fields
 node src/index.js -u http://localhost:8085/graphql -d 5 -e email,isActive
+
+# Interactive Mode (Select specific queries to generate)
+node src/index.js -u http://localhost:8085/graphql -i
 ```
 
 ### Customizing Default Values
