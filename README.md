@@ -69,6 +69,16 @@ export const typeDefaults = {
 ```
 These defaults will recursively apply to complex nested `InputObjectTypes` encountered in mutations.
 
+### Importing to Insomnia
+
+Every time you run the tool, an `insomnia_collection.json` file is generated inside your output directory. You can import this file directly into Insomnia to start testing your queries immediately:
+
+1. Open the Insomnia application.
+2. Click the **+** (plus) icon or **Create** button next to your projects.
+3. Select **Import From** -> **File**.
+4. Choose the generated `output/insomnia_collection.json` file.
+5. A new workspace named "GraphQL Generated Queries" will appear containing all your separated queries and variables ready for execution!
+
 ### Local Mock Server Testing
 
 This project comes with a built-in mock GraphQL server so you can test the CLI without needing a real endpoint.
