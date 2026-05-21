@@ -45,18 +45,17 @@ program
       if (options.interactive && operations.length > 0) {
         const { selectedOps } = await inquirer.prompt([
           {
-            type: "checkbox",
+            type: "list",
             name: "selectedOps",
-            message: "Select which queries/mutations to generate:",
+            message: "Select a query/mutation to generate:",
             choices: operations.map(op => ({
               name: `[${op.type.toUpperCase()}] ${op.name}`,
-              value: op.name,
-              checked: false
+              value: op.name
             }))
           }
         ]);
 
-        operations = operations.filter(op => selectedOps.includes(op.name));
+        operations = operations.filter(op => op.name === selectedOps);
         
         if (operations.length === 0) {
           console.log("No operations selected. Exiting...");
