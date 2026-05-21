@@ -3,6 +3,7 @@ import path from "path";
 import { fetchSchema } from "./fetchSchema.js";
 import { generateAll } from "./generate.js";
 import { writeOutputs } from "./writer.js";
+import { generateInsomniaCollection } from "./insomnia.js";
 
 const program = new Command();
 
@@ -34,6 +35,9 @@ program
 
       const outDir = path.resolve(process.cwd(), options.outdir);
       await writeOutputs(operations, outDir);
+
+      const insomniaPath = await generateInsomniaCollection(operations, options.url, outDir);
+      console.log(`Generated Insomnia collection: ${insomniaPath}`);
 
       console.log(`Done! Output saved to ${outDir}`);
     } catch (err) {

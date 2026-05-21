@@ -8,6 +8,7 @@ A powerful Node.js CLI tool that automatically connects to any GraphQL endpoint,
 - **Query & Mutation Generation**: Generates clean, ready-to-use `.graphql` templates for every query and mutation.
 - **Smart Variable Extraction**: Extracts all required arguments and builds a complete, decoupled variables JSON file.
 - **Easily Overridable Defaults**: Generates default scalar values and deeply nested input objects. You can easily configure the global default mappings (e.g., set `String` to always default to `""`) inside `src/defaults.js`.
+- **Insomnia Collection Export**: Automatically generates an `insomnia_collection.json` file containing all your queries and variables, ready to be imported into Insomnia for immediate testing.
 
 ## Getting Started
 
