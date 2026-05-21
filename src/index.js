@@ -13,6 +13,8 @@ program
   .requiredOption("-u, --url <url>", "GraphQL endpoint URL (e.g. http://localhost:8085/graphql)")
   .option("-o, --outdir <path>", "Output directory", "output")
   .option("-H, --header <key:value...>", "Custom headers to include in introspection request")
+  .option("-d, --max-depth <number>", "Maximum depth for nested queries", "3")
+  .option("-e, --exclude <fields>", "Comma-separated list of fields to exclude from queries")
   .action(async (options) => {
     try {
       console.log(`Fetching schema from ${options.url}...`);
@@ -30,7 +32,12 @@ program
       const schema = await fetchSchema(options.url, headers);
       console.log("Schema fetched successfully. Generating operations...");
 
-      const operations = generateAll(schema);
+      const genOptions = {
+        maxDepth: parseInt(options.maxDepth, 10),
+        excludeFields: options.exclude ? options.exclude.split(',').map(s => s.trim()) : []
+      };
+
+      const operations = generateAll(schema, genOptions);
       console.log(`Found ${operations.length} operations. Writing to files...`);
 
       const outDir = path.resolve(process.cwd(), options.outdir);

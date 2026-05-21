@@ -40,6 +40,8 @@ node src/index.js -u <YOUR_GRAPHQL_ENDPOINT>
 - `-u, --url <url>` (Required): The GraphQL endpoint URL to introspect.
 - `-o, --outdir <path>` (Optional): The output directory where generated files will be saved (default is `output/`).
 - `-H, --header <key:value>` (Optional): Custom HTTP headers to include in the introspection request (e.g., for Authorization).
+- `-d, --max-depth <number>` (Optional): Maximum depth to traverse nested queries (default is 3).
+- `-e, --exclude <fields>` (Optional): Comma-separated list of field names to exclude from the generated queries (e.g., `password,token`).
 
 **Examples:**
 ```bash
@@ -51,6 +53,9 @@ node src/index.js -u http://localhost:8085/graphql -o my-queries
 
 # With Authorization Header
 node src/index.js -u https://api.yoursite.com/graphql -H "Authorization: Bearer <token>"
+
+# Limit depth and exclude specific fields
+node src/index.js -u http://localhost:8085/graphql -d 5 -e email,isActive
 ```
 
 ### Customizing Default Values

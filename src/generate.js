@@ -11,13 +11,12 @@ import {
 } from "graphql";
 import { getDefaultValue } from "./defaults.js";
 
-const MAX_DEPTH = 3;
-
 /**
  * Traverses a type and builds a selection set (e.g. { id name ... })
  */
-function buildSelectionSet(type, depth = 0) {
-  if (depth > MAX_DEPTH) {
+function buildSelectionSet(type, options, depth = 0) {
+  const maxDepth = options.maxDepth !== undefined ? options.maxDepth : 3;
+  if (depth > maxDepth) {
     return "";
   }
   
@@ -29,12 +28,17 @@ function buildSelectionSet(type, depth = 0) {
 
   if (isObjectType(namedType) || isInterfaceType(namedType)) {
     const fields = namedType.getFields();
-    const selections = Object.keys(fields)
+    
+    // Filter out excluded fields
+    const excludeSet = new Set(options.excludeFields || []);
+    const availableFields = Object.keys(fields).filter(f => !excludeSet.has(f));
+
+    const selections = availableFields
       .slice(0, 5) // Limit number of fields to prevent massive queries if not needed, or just include all. Let's include all.
       .map((fieldName) => {
         const field = fields[fieldName];
         // recursively build
-        const subSelection = buildSelectionSet(field.type, depth + 1);
+        const subSelection = buildSelectionSet(field.type, options, depth + 1);
         return subSelection ? `${fieldName} ${subSelection}` : fieldName;
       });
       
@@ -45,7 +49,7 @@ function buildSelectionSet(type, depth = 0) {
   if (isUnionType(namedType)) {
     const types = namedType.getTypes();
     const inlineFragments = types.map(t => {
-      const subSelection = buildSelectionSet(t, depth + 1);
+      const subSelection = buildSelectionSet(t, options, depth + 1);
       return subSelection ? `... on ${t.name} ${subSelection}` : "";
     });
     return inlineFragments.some(Boolean) ? `{\n  ${inlineFragments.filter(Boolean).join("\n  ")}\n}` : "";
@@ -74,7 +78,7 @@ function resolveVariableDefault(type) {
   return getDefaultValue(namedType.name) ?? null;
 }
 
-export function generateOperation(operationType, fieldName, field) {
+export function generateOperation(operationType, fieldName, field, options) {
   const variables = {};
   const variableDefinitions = [];
   const argumentNodes = [];
@@ -91,7 +95,7 @@ export function generateOperation(operationType, fieldName, field) {
     variables[arg.name] = resolveVariableDefault(arg.type);
   }
 
-  const selectionSet = buildSelectionSet(field.type);
+  const selectionSet = buildSelectionSet(field.type, options);
   
   const opName = `${fieldName.charAt(0).toUpperCase()}${fieldName.slice(1)}`;
   const varsDefString = variableDefinitions.length > 0 ? `(${variableDefinitions.join(", ")})` : "";
@@ -105,7 +109,7 @@ export function generateOperation(operationType, fieldName, field) {
   return { query, variables, opName };
 }
 
-export function generateAll(schema) {
+export function generateAll(schema, options = {}) {
   const operations = [];
 
   const queryType = schema.getQueryType();
@@ -115,7 +119,7 @@ export function generateAll(schema) {
       operations.push({
         type: 'query',
         name: fieldName,
-        ...generateOperation('query', fieldName, field)
+        ...generateOperation('query', fieldName, field, options)
       });
     }
   }
@@ -127,7 +131,7 @@ export function generateAll(schema) {
       operations.push({
         type: 'mutation',
         name: fieldName,
-        ...generateOperation('mutation', fieldName, field)
+        ...generateOperation('mutation', fieldName, field, options)
       });
     }
   }
