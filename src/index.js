@@ -51,7 +51,7 @@ program
             choices: operations.map(op => ({
               name: `[${op.type.toUpperCase()}] ${op.name}`,
               value: op.name,
-              checked: true
+              checked: false
             }))
           }
         ]);
