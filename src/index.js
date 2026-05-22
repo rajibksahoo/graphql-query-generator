@@ -5,6 +5,9 @@ import { generateAll } from "./generate.js";
 import { writeOutputs } from "./writer.js";
 import { generateInsomniaCollection } from "./insomnia.js";
 import inquirer from "inquirer";
+import inquirerPrompt from "inquirer-autocomplete-prompt";
+
+inquirer.registerPrompt("autocomplete", inquirerPrompt);
 
 const program = new Command();
 
@@ -43,15 +46,23 @@ program
       console.log(`Found ${operations.length} operations.`);
 
       if (options.interactive && operations.length > 0) {
+        const choices = operations.map(op => ({
+          name: `[${op.type.toUpperCase()}] ${op.name}`,
+          value: op.name
+        }));
+
         const { selectedOps } = await inquirer.prompt([
           {
-            type: "list",
+            type: "autocomplete",
             name: "selectedOps",
-            message: "Select a query/mutation to generate:",
-            choices: operations.map(op => ({
-              name: `[${op.type.toUpperCase()}] ${op.name}`,
-              value: op.name
-            }))
+            message: "Search for a query/mutation to generate:",
+            source: (answers, input) => {
+              input = input || '';
+              return new Promise((resolve) => {
+                const results = choices.filter(c => c.name.toLowerCase().includes(input.toLowerCase()));
+                resolve(results);
+              });
+            }
           }
         ]);
 
