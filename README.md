@@ -40,7 +40,7 @@ node src/index.js -u <YOUR_GRAPHQL_ENDPOINT>
 - `-u, --url <url>` (Required): The GraphQL endpoint URL to introspect.
 - `-o, --outdir <path>` (Optional): The output directory where generated files will be saved (default is `output/`).
 - `-H, --header <key:value>` (Optional): Custom HTTP headers to include in the introspection request (e.g., for Authorization).
-- `-d, --max-depth <number>` (Optional): Maximum depth to traverse nested queries (default is 3).
+- `-d, --max-depth <number>` (Optional): Maximum depth to traverse nested queries (default is 10).
 - `-e, --exclude <fields>` (Optional): Comma-separated list of field names to exclude from the generated queries (e.g., `password,token`).
 - `-i, --interactive` (Optional): Launches an interactive terminal UI to manually select which specific queries or mutations you want to generate.
 

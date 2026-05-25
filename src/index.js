@@ -17,7 +17,7 @@ program
   .requiredOption("-u, --url <url>", "GraphQL endpoint URL (e.g. http://localhost:8085/graphql)")
   .option("-o, --outdir <path>", "Output directory", "output")
   .option("-H, --header <key:value...>", "Custom headers to include in introspection request")
-  .option("-d, --max-depth <number>", "Maximum depth for nested queries", "3")
+  .option("-d, --max-depth <number>", "Maximum depth for nested queries", "10")
   .option("-e, --exclude <fields>", "Comma-separated list of fields to exclude from queries")
   .option("-i, --interactive", "Interactive mode to manually select which queries/mutations to generate")
   .action(async (options) => {

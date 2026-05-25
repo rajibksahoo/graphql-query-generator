@@ -15,7 +15,7 @@ import { getDefaultValue } from "./defaults.js";
  * Traverses a type and builds a selection set (e.g. { id name ... })
  */
 function buildSelectionSet(type, options, depth = 0) {
-  const maxDepth = options.maxDepth !== undefined ? options.maxDepth : 3;
+  const maxDepth = options.maxDepth !== undefined ? options.maxDepth : 10;
   if (depth > maxDepth) {
     return "";
   }
@@ -58,24 +58,40 @@ function buildSelectionSet(type, options, depth = 0) {
   return "";
 }
 
-function resolveVariableDefault(type) {
-  const namedType = getNamedType(type);
-  if (isListType(type) || (isNonNullType(type) && isListType(type.ofType))) {
-    return [];
+function resolveVariableDefault(type, options, depth = 0) {
+  const maxDepth = options && options.maxDepth !== undefined ? options.maxDepth : 10;
+  if (depth > maxDepth) {
+    return null;
   }
+
+  if (isNonNullType(type)) {
+    return resolveVariableDefault(type.ofType, options, depth);
+  }
+
+  if (isListType(type)) {
+    const innerDefault = resolveVariableDefault(type.ofType, options, depth + 1);
+    return innerDefault !== null ? [innerDefault] : [];
+  }
+
+  const namedType = getNamedType(type);
+
   if (isEnumType(namedType)) {
     // Return first enum value as default
     return namedType.getValues()[0]?.value || "";
   }
+  
   if (isInputObjectType(namedType)) {
     const fields = namedType.getFields();
     const defaults = {};
     for (const [fieldName, field] of Object.entries(fields)) {
-      defaults[fieldName] = resolveVariableDefault(field.type);
+      const fieldDefault = resolveVariableDefault(field.type, options, depth + 1);
+      if (fieldDefault !== null) {
+        defaults[fieldName] = fieldDefault;
+      }
     }
     return defaults;
   }
-  return getDefaultValue(namedType.name) ?? null;
+  return getDefaultValue(namedType.name) ?? "";
 }
 
 export function generateOperation(operationType, fieldName, field, options) {
@@ -92,7 +108,8 @@ export function generateOperation(operationType, fieldName, field, options) {
     argumentNodes.push(`${arg.name}: ${varName}`);
     
     // Determine a default value based on type
-    variables[arg.name] = resolveVariableDefault(arg.type);
+    const defaultVal = resolveVariableDefault(arg.type, options);
+    variables[arg.name] = defaultVal !== null ? defaultVal : "";
   }
 
   const selectionSet = buildSelectionSet(field.type, options);
