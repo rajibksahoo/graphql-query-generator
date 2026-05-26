@@ -11,8 +11,8 @@
   "dependencies": {
     "commander": "^11.0.0",
     "graphql": "^16.8.0",
-    "inquirer": "^9.2.12",
-    "inquirer-autocomplete-prompt": "^3.0.1"
+    "inquirer": "^8.2.6",
+    "inquirer-autocomplete-prompt": "^2.0.1"
   },
   "devDependencies": {
     "apollo-server": "^3.12.0"
