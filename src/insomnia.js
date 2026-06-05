@@ -8,6 +8,7 @@ function generateId(prefix) {
 
 export async function generateInsomniaCollection(operations, url, outDir) {
   const workspaceId = generateId('wrk');
+  const folderId = generateId('fld');
   
   const resources = [
     {
@@ -19,6 +20,15 @@ export async function generateInsomniaCollection(operations, url, outDir) {
       description: "Auto-generated GraphQL collection",
       scope: "collection",
       _type: "workspace"
+    },
+    {
+      _id: folderId,
+      parentId: workspaceId,
+      modified: Date.now(),
+      created: Date.now(),
+      name: url,
+      description: "Auto-generated folder for endpoint",
+      _type: "request_group"
     }
   ];
 
@@ -32,7 +42,7 @@ export async function generateInsomniaCollection(operations, url, outDir) {
 
     resources.push({
       _id: reqId,
-      parentId: workspaceId,
+      parentId: folderId,
       modified: Date.now(),
       created: Date.now(),
       url: url,
