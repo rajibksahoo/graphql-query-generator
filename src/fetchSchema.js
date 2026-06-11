@@ -21,6 +21,10 @@ export async function fetchSchema(url, headers = {}) {
     throw new Error(`GraphQL introspection errors: ${JSON.stringify(errors, null, 2)}`);
   }
 
+  if (!data || !data.__schema) {
+    throw new Error(`Endpoint returned unexpected response. Expected a GraphQL introspection result, got: ${JSON.stringify(data).slice(0, 200)}`);
+  }
+
   // Convert the introspection response into a GraphQLSchema object
   return buildClientSchema(data);
 }
