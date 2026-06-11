@@ -42,7 +42,12 @@ node src/index.js -u <YOUR_GRAPHQL_ENDPOINT>
 - `-H, --header <key:value>` (Optional): Custom HTTP headers to include in the introspection request (e.g., for Authorization).
 - `-d, --max-depth <number>` (Optional): Maximum depth to traverse nested queries (default is 10).
 - `-e, --exclude <fields>` (Optional): Comma-separated list of field names to exclude from the generated queries (e.g., `password,token`).
-- `-i, --interactive` (Optional): Launches an interactive terminal UI to manually select which specific queries or mutations you want to generate.
+- `-i, --interactive` (Optional): Launches an interactive checkbox list to select which queries or mutations to generate (space to select, enter to confirm).
+- `-t, --timeout <ms>` (Optional): Timeout for the introspection request in milliseconds (default is 30000).
+- `--verbose` (Optional): Enables extra logging (e.g., the Insomnia collection path).
+- `--quiet` (Optional): Suppresses all non-error output.
+- `--dry-run` (Optional): Lists the operations that would be generated without writing any files.
+- `-V, --version`: Prints the tool version.
 
 **Examples:**
 ```bash
@@ -60,7 +65,29 @@ node src/index.js -u http://localhost:8085/graphql -d 5 -e email,isActive
 
 # Interactive Mode (Select specific queries to generate)
 node src/index.js -u http://localhost:8085/graphql -i
+
+# Preview without writing files
+node src/index.js -u http://localhost:8085/graphql --dry-run
 ```
+
+### Config File
+
+Instead of passing flags every time, you can place a `.graphqlgenrc.json` in the directory you run the tool from. CLI flags always override config file values.
+
+```json
+{
+  "url": "http://localhost:8085/graphql",
+  "outdir": "generated",
+  "maxDepth": 8,
+  "exclude": "createdAt,updatedAt",
+  "header": ["Authorization: Bearer my-token"],
+  "timeout": 15000
+}
+```
+
+Supported keys: `url`, `outdir`, `header`, `maxDepth`, `exclude`, `timeout`, `verbose`, `quiet`.
+
+> **Security note:** If you put an Authorization token in the config file, don't commit it. The tool also warns when an Authorization header is sent over plain `http://`.
 
 ### Customizing Default Values
 
@@ -101,3 +128,17 @@ This project comes with a built-in mock GraphQL server so you can test the CLI w
    node src/index.js -u http://localhost:8085/graphql
    ```
 3. Check the `output/` directory for the generated `.graphql` and `.json` files!
+
+### Running the Tests
+
+```bash
+npm test            # run the full Vitest suite (unit + integration)
+npm run test:watch  # watch mode
+```
+
+The integration tests start their own Apollo server on port 18085 — no manual setup needed.
+
+### Reliability Notes
+
+- Output is written atomically: files are staged in `<outdir>.tmp` and renamed into place, so a failed run never leaves a partially-written output directory.
+- The introspection request times out after 30 seconds by default (configurable with `--timeout`).

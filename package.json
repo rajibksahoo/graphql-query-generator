@@ -4,6 +4,15 @@
   "description": "Generate GraphQL queries and mutations with default variables from a schema URL",
   "main": "src/index.js",
   "type": "module",
+  "bin": {
+    "graphql-query-generator": "src/index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "src"
+  ],
   "scripts": {
     "start": "node src/index.js",
     "test": "vitest run",

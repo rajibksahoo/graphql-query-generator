@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { createRequire } from 'module';
 import { Command } from "commander";
 import path from "path";
@@ -74,6 +75,8 @@ program
           const [key, ...rest] = h.split(":");
           if (key && rest.length > 0) {
             headers[key.trim()] = rest.join(":").trim();
+          } else {
+            console.warn(`Warning: Ignoring malformed header "${h}" (expected "Key: Value").`);
           }
         });
       }
