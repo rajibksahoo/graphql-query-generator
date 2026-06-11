@@ -49,29 +49,19 @@ program
       const fromCli = (name) => program.getOptionValueSource(name) === 'cli';
       const cfg = (key) => fileConfig[key];
 
-      const url = fromCli('url') ? options.url : (cfg('url') || options.url);
-      const outdir = fromCli('outdir') ? options.outdir : (cfg('outdir') || options.outdir);
-      const maxDepth = fromCli('maxDepth') ? options.maxDepth : (cfg('maxDepth') || options.maxDepth);
-      const exclude = fromCli('exclude') ? options.exclude : (cfg('exclude') || options.exclude);
-      const timeout = fromCli('timeout') ? options.timeout : (cfg('timeout') || options.timeout);
-      const verbose = options.verbose || cfg('verbose') || false;
-      const quiet = options.quiet || cfg('quiet') || false;
-      const header = options.header || cfg('header');
+      options.url     = fromCli('url')      ? options.url      : (cfg('url')      || options.url);
+      options.outdir  = fromCli('outdir')   ? options.outdir   : (cfg('outdir')   || options.outdir);
+      options.maxDepth= fromCli('maxDepth') ? options.maxDepth : (cfg('maxDepth') || options.maxDepth);
+      options.exclude = fromCli('exclude')  ? options.exclude  : (cfg('exclude')  || options.exclude);
+      options.timeout = fromCli('timeout')  ? options.timeout  : (cfg('timeout')  || options.timeout);
+      options.verbose = options.verbose || cfg('verbose') || false;
+      options.quiet   = options.quiet   || cfg('quiet')   || false;
+      options.header  = options.header  || cfg('header');
 
-      if (!url) {
+      if (!options.url) {
         console.error("Error: --url is required (or set 'url' in .graphqlgenrc.json)");
         process.exit(1);
       }
-
-      // Rewrite options with merged values for use in the rest of the action
-      options.url = url;
-      options.outdir = outdir;
-      options.maxDepth = maxDepth;
-      options.exclude = exclude;
-      options.timeout = timeout;
-      options.verbose = verbose;
-      options.quiet = quiet;
-      options.header = header;
 
       const log = (msg) => { if (!options.quiet) console.log(msg); };
       const verbose = (msg) => { if (options.verbose && !options.quiet) console.log(msg); };
