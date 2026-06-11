@@ -36,7 +36,7 @@ export async function generateInsomniaCollection(operations, url, outDir) {
     const reqId = generateId('req');
     const bodyTextObj = {
       query: op.query,
-      variables: JSON.stringify(op.variables, null, 2),
+      variables: op.variables,
       operationName: op.opName
     };
 
@@ -50,7 +50,7 @@ export async function generateInsomniaCollection(operations, url, outDir) {
       description: `Generated ${op.type}`,
       method: "POST",
       body: {
-        mimeType: "application/graphql",
+        mimeType: "application/json",
         text: JSON.stringify(bodyTextObj)
       },
       headers: [

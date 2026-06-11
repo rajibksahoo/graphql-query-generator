@@ -34,7 +34,6 @@ function buildSelectionSet(type, options, depth = 0) {
     const availableFields = Object.keys(fields).filter(f => !excludeSet.has(f));
 
     const selections = availableFields
-      .slice(0, 5) // Limit number of fields to prevent massive queries if not needed, or just include all. Let's include all.
       .map((fieldName) => {
         const field = fields[fieldName];
         // recursively build

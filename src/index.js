@@ -5,9 +5,6 @@ import { generateAll } from "./generate.js";
 import { writeOutputs } from "./writer.js";
 import { generateInsomniaCollection } from "./insomnia.js";
 import inquirer from "inquirer";
-import inquirerPrompt from "inquirer-autocomplete-prompt";
-
-inquirer.registerPrompt("autocomplete", inquirerPrompt);
 
 const program = new Command();
 
@@ -53,20 +50,15 @@ program
 
         const { selectedOps } = await inquirer.prompt([
           {
-            type: "autocomplete",
+            type: "checkbox",
             name: "selectedOps",
-            message: "Search for a query/mutation to generate:",
-            source: (answers, input) => {
-              input = input || '';
-              return new Promise((resolve) => {
-                const results = choices.filter(c => c.name.toLowerCase().includes(input.toLowerCase()));
-                resolve(results);
-              });
-            }
+            message: "Select queries/mutations to generate (space to select, enter to confirm):",
+            choices,
+            pageSize: 20
           }
         ]);
 
-        operations = operations.filter(op => op.name === selectedOps);
+        operations = operations.filter(op => selectedOps.includes(op.name));
         
         if (operations.length === 0) {
           console.log("No operations selected. Exiting...");
