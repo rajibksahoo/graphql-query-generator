@@ -1,30 +1,42 @@
 import { getIntrospectionQuery, buildClientSchema } from "graphql";
 
-export async function fetchSchema(url, headers = {}) {
-  const query = getIntrospectionQuery();
-  
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...headers,
-    },
-    body: JSON.stringify({ query }),
-  });
+export async function fetchSchema(url, headers = {}, timeout = 30000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch schema from ${url}: ${response.status} ${response.statusText}`);
+  try {
+    const query = getIntrospectionQuery();
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: JSON.stringify({ query }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch schema from ${url}: ${response.status} ${response.statusText}`);
+    }
+
+    const { data, errors } = await response.json();
+    if (errors) {
+      throw new Error(`GraphQL introspection errors: ${JSON.stringify(errors, null, 2)}`);
+    }
+
+    if (!data || !data.__schema) {
+      throw new Error(`Endpoint returned unexpected response. Expected a GraphQL introspection result, got: ${JSON.stringify(data).slice(0, 200)}`);
+    }
+
+    // Convert the introspection response into a GraphQLSchema object
+    return buildClientSchema(data);
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeout}ms. Check that the endpoint is reachable.`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
   }
-
-  const { data, errors } = await response.json();
-  if (errors) {
-    throw new Error(`GraphQL introspection errors: ${JSON.stringify(errors, null, 2)}`);
-  }
-
-  if (!data || !data.__schema) {
-    throw new Error(`Endpoint returned unexpected response. Expected a GraphQL introspection result, got: ${JSON.stringify(data).slice(0, 200)}`);
-  }
-
-  // Convert the introspection response into a GraphQLSchema object
-  return buildClientSchema(data);
 }
