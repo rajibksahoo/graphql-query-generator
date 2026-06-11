@@ -68,7 +68,7 @@ program
           ]);
           selectedOps = result.selectedOps;
         } catch (err) {
-          if (err.message && err.message.includes('force closed')) {
+          if (err.isTtyError || (err.message && (err.message.includes('force closed') || err.message.includes('canceled')))) {
             process.exit(0);
           }
           throw err;
