@@ -121,7 +121,7 @@ program
         operations = operations.filter(op => selectedOps.includes(op.name));
 
         if (operations.length === 0) {
-          console.log("No operations selected. Exiting...");
+          log("No operations selected. Exiting...");
           process.exit(0);
         }
       }
