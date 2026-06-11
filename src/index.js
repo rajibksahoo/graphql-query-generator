@@ -44,23 +44,34 @@ program
   .action(async (options) => {
     try {
       const fileConfig = loadConfig();
-      // CLI flags override config file values
-      const merged = { ...fileConfig, ...Object.fromEntries(
-        Object.entries(options).filter(([, v]) => v !== undefined && v !== false)
-      ) };
-      // Apply merged values back (url from config if not in CLI)
-      if (!options.url && merged.url) options.url = merged.url;
-      if (!options.outdir || options.outdir === 'output') options.outdir = merged.outdir || options.outdir;
-      if (merged.maxDepth && options.maxDepth === 10) options.maxDepth = merged.maxDepth;
-      if (!options.exclude && merged.exclude) options.exclude = merged.exclude;
-      if (!options.timeout || options.timeout === 30000) options.timeout = merged.timeout || options.timeout || 30000;
-      if (merged.verbose) options.verbose = true;
-      if (merged.quiet) options.quiet = true;
+      // For each option, use the CLI value if explicitly supplied; fall back to config file.
+      // program.getOptionValueSource returns 'cli' when the user passed the flag explicitly.
+      const fromCli = (name) => program.getOptionValueSource(name) === 'cli';
+      const cfg = (key) => fileConfig[key];
 
-      if (!options.url) {
+      const url = fromCli('url') ? options.url : (cfg('url') || options.url);
+      const outdir = fromCli('outdir') ? options.outdir : (cfg('outdir') || options.outdir);
+      const maxDepth = fromCli('maxDepth') ? options.maxDepth : (cfg('maxDepth') || options.maxDepth);
+      const exclude = fromCli('exclude') ? options.exclude : (cfg('exclude') || options.exclude);
+      const timeout = fromCli('timeout') ? options.timeout : (cfg('timeout') || options.timeout);
+      const verbose = options.verbose || cfg('verbose') || false;
+      const quiet = options.quiet || cfg('quiet') || false;
+      const header = options.header || cfg('header');
+
+      if (!url) {
         console.error("Error: --url is required (or set 'url' in .graphqlgenrc.json)");
         process.exit(1);
       }
+
+      // Rewrite options with merged values for use in the rest of the action
+      options.url = url;
+      options.outdir = outdir;
+      options.maxDepth = maxDepth;
+      options.exclude = exclude;
+      options.timeout = timeout;
+      options.verbose = verbose;
+      options.quiet = quiet;
+      options.header = header;
 
       const log = (msg) => { if (!options.quiet) console.log(msg); };
       const verbose = (msg) => { if (options.verbose && !options.quiet) console.log(msg); };
