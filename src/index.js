@@ -7,7 +7,10 @@ import { generateAll } from "./generate.js";
 import { writeOutputs } from "./writer.js";
 import { generateInsomniaCollection } from "./insomnia.js";
 import inquirer from "inquirer";
+import checkboxPlus from "inquirer-checkbox-plus-prompt";
 import { loadConfig } from './config.js';
+
+inquirer.registerPrompt("checkbox-plus", checkboxPlus);
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -107,11 +110,16 @@ program
         try {
           const result = await inquirer.prompt([
             {
-              type: "checkbox",
+              type: "checkbox-plus",
               name: "selectedOps",
-              message: "Select queries/mutations to generate (space to select, enter to confirm):",
-              choices,
-              pageSize: 20
+              message: "Select queries/mutations to generate (type to search, space to select, enter to confirm):",
+              pageSize: 20,
+              highlight: true,
+              searchable: true,
+              source: async (answersSoFar, input) => {
+                input = input || '';
+                return choices.filter(c => c.name.toLowerCase().includes(input.toLowerCase()));
+              }
             }
           ]);
           selectedOps = result.selectedOps;
