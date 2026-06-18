@@ -32,17 +32,18 @@ npm install
 Run the CLI tool from your terminal by passing the URL to your GraphQL API:
 
 ```bash
-node src/index.js -u <YOUR_GRAPHQL_ENDPOINT>
+node src/index.js <YOUR_GRAPHQL_ENDPOINT>
 ```
 
 #### Options
 
-- `-u, --url <url>` (Required): The GraphQL endpoint URL to introspect.
+- `[url]` (Required): The GraphQL endpoint URL to introspect, provided as a positional argument.
+- `-u, --url <url>` (Optional, legacy): Alternative way to provide the endpoint URL.
 - `-o, --outdir <path>` (Optional): The output directory where generated files will be saved (default is `output/`).
 - `-H, --header <key:value>` (Optional): Custom HTTP headers to include in the introspection request (e.g., for Authorization).
 - `-d, --max-depth <number>` (Optional): Maximum depth to traverse nested queries and nested input variables (default is 10).
 - `-e, --exclude <fields>` (Optional): Comma-separated list of field names to exclude from the generated queries (e.g., `password,token`).
-- `-i, --interactive` (Optional): Launches an interactive checkbox list to select which queries or mutations to generate (space to select, enter to confirm).
+- `-i, --interactive` (Optional): Launches an interactive list to select which queries or mutations to generate (type to search, space to select, enter to confirm).
 - `-t, --timeout <ms>` (Optional): Timeout for the introspection request in milliseconds (default is 30000).
 - `--verbose` (Optional): Enables extra logging (e.g., the Insomnia collection path).
 - `--quiet` (Optional): Suppresses all non-error output.
@@ -52,22 +53,22 @@ node src/index.js -u <YOUR_GRAPHQL_ENDPOINT>
 **Examples:**
 ```bash
 # Basic usage
-node src/index.js -u http://localhost:8085/graphql
+node src/index.js http://localhost:8085/graphql
 
 # Custom output directory
-node src/index.js -u http://localhost:8085/graphql -o my-queries
+node src/index.js http://localhost:8085/graphql -o my-queries
 
 # With Authorization Header
-node src/index.js -u https://api.yoursite.com/graphql -H "Authorization: Bearer <token>"
+node src/index.js https://api.yoursite.com/graphql -H "Authorization: Bearer <token>"
 
 # Limit depth and exclude specific fields
-node src/index.js -u http://localhost:8085/graphql -d 5 -e email,isActive
+node src/index.js http://localhost:8085/graphql -d 5 -e email,isActive
 
-# Interactive Mode (Select specific queries to generate)
-node src/index.js -u http://localhost:8085/graphql -i
+# Interactive Mode (Search and select specific queries to generate)
+node src/index.js http://localhost:8085/graphql -i
 
 # Preview without writing files
-node src/index.js -u http://localhost:8085/graphql --dry-run
+node src/index.js http://localhost:8085/graphql --dry-run
 ```
 
 ### Config File
@@ -125,7 +126,7 @@ This project comes with a built-in mock GraphQL server so you can test the CLI w
    ```
 2. In a separate terminal, run the CLI against the mock server:
    ```bash
-   node src/index.js -u http://localhost:8085/graphql
+   node src/index.js http://localhost:8085/graphql
    ```
 3. Check the `output/` directory for the generated `.graphql` and `.json` files!
 
