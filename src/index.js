@@ -21,7 +21,8 @@ program
   .name("graphql-query-generator")
   .description("Generate GraphQL queries and mutations from a schema URL")
   .version(pkg.version)
-  .option("-u, --url <url>", "GraphQL endpoint URL (e.g. http://localhost:8085/graphql)")
+  .argument("[url]", "GraphQL endpoint URL (e.g. http://localhost:8085/graphql)")
+  .option("-u, --url <url>", "GraphQL endpoint URL (legacy, use positional argument instead)")
   .option("-o, --outdir <path>", "Output directory", "output")
   .option("-H, --header <key:value...>", "Custom headers to include in introspection request")
   .option("-d, --max-depth <number>", "Maximum depth for nested queries", (val) => {
@@ -45,7 +46,7 @@ program
   .option("--verbose", "Enable verbose logging")
   .option("--quiet", "Suppress all non-error output")
   .option("--dry-run", "Preview operations without writing files")
-  .action(async (options) => {
+  .action(async (urlArg, options) => {
     try {
       const fileConfig = loadConfig();
       // For each option, use the CLI value if explicitly supplied; fall back to config file.
@@ -53,7 +54,7 @@ program
       const fromCli = (name) => program.getOptionValueSource(name) === 'cli';
       const cfg = (key) => fileConfig[key];
 
-      options.url     = fromCli('url')      ? options.url      : (cfg('url')      || options.url);
+      options.url     = urlArg || (fromCli('url') ? options.url : (cfg('url') || options.url));
       options.outdir  = fromCli('outdir')   ? options.outdir   : (cfg('outdir')   || options.outdir);
       options.maxDepth= fromCli('maxDepth') ? options.maxDepth : (cfg('maxDepth') || options.maxDepth);
       options.exclude = fromCli('exclude')  ? options.exclude  : (cfg('exclude')  || options.exclude);
@@ -63,7 +64,7 @@ program
       options.header  = options.header  || cfg('header');
 
       if (!options.url) {
-        console.error("Error: --url is required (or set 'url' in .graphqlgenrc.json)");
+        console.error("Error: A GraphQL endpoint URL is required as a positional argument or --url flag (or set 'url' in .graphqlgenrc.json)");
         process.exit(1);
       }
 
