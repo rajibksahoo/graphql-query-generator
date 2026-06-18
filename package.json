@@ -1,9 +1,24 @@
 {
-  "name": "graphql-query-generator",
+  "name": "@rajibksahoo/graphql-query-generator",
   "version": "1.0.0",
   "description": "Generate GraphQL queries and mutations with default variables from a schema URL",
   "main": "src/index.js",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Rajib Sahoo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rajibksahoo/graphql-query-generator.git"
+  },
+  "keywords": [
+    "graphql",
+    "cli",
+    "query",
+    "generator",
+    "introspection"
+  ],
   "bin": {
     "graphql-query-generator": "src/index.js"
   },
